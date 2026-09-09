@@ -56,7 +56,7 @@ export function Hero() {
   const words = operator.tagline.split(' ');
 
   return (
-    <section className="relative isolate flex min-h-[78dvh] flex-col justify-end overflow-hidden bg-brand-900 md:min-h-[86dvh]">
+    <section className="relative isolate flex min-h-[78dvh] flex-col justify-end overflow-hidden bg-black md:min-h-[86dvh]">
       {/* Poster paints immediately; the video fades over it once it can play. */}
       <div
         className="absolute inset-0 -z-20 bg-cover bg-center"
@@ -85,8 +85,10 @@ export function Hero() {
         </video>
       )}
 
-      {/* Keeps the tagline legible over whatever frame is showing. */}
-      <div className="absolute inset-0 -z-[5] bg-gradient-to-t from-brand-900 via-brand-900/55 to-brand-900/25" />
+      {/* Keeps the tagline legible over whatever frame is showing. Neutral black
+          rather than brand navy, and clear at the top, so the footage keeps its
+          own colour instead of picking up a blue cast. */}
+      <div className="absolute inset-0 -z-[5] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
       <div className="container-page relative pb-16 pt-28 md:pb-24 md:pt-40">
         <h1 className="max-w-3xl font-display text-[clamp(2.25rem,7vw,4.5rem)] font-semibold leading-[1.05] text-white">

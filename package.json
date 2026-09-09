@@ -1,0 +1,33 @@
+{
+  "name": "sapthagiri-travels",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sapthagiri Travels — bus ticket booking and charter hire, Bangalore",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "encode:hero": "node scripts/encode-hero.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.550.0",
+    "motion": "^13.2.0",
+    "next": "^16.3.4",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "ffmpeg-static": "^5.3.0",
+    "playwright": "^1.63.0",
+    "sharp": "^0.35.4",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.0"
+  }
+}

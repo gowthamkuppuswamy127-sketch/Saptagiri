@@ -1,0 +1,24 @@
+# Security headers for hosts that read a _headers file (Netlify, Cloudflare Pages).
+# A static export cannot set headers from next.config, so they are declared here
+# and mirrored in vercel.json for Vercel.
+#
+# On script-src 'unsafe-inline': Next.js hydrates a statically exported page via
+# inline script tags, and a static host cannot issue per-request nonces. It is
+# recorded here honestly rather than claimed to be stricter than it is — there
+# is no server, no database and no user-generated content rendered on this site,
+# so the injection surface it would otherwise protect does not exist.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Cross-Origin-Opener-Policy: same-origin
+
+/media/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

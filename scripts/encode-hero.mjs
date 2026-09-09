@@ -17,6 +17,15 @@ const run = promisify(execFile);
 const SOURCE = 'Main Sapta.mp4';
 const OUT_DIR = path.join('public', 'media');
 
+/**
+ * The source footage was shot on a misty, overcast morning in the ghats, so it
+ * carries a strong blue cast — measured at roughly +23 blue over red across the
+ * sky. This trims red up and blue down to neutralise most of that while leaving
+ * the mist looking like mist. Raise `bb` toward 1.0 for a cooler picture, lower
+ * it for a warmer one.
+ */
+const COLOUR = 'colorchannelmixer=rr=1.05:gg=1.0:bb=0.93';
+
 const kb = (bytes) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 
 async function encode(label, args) {
@@ -37,7 +46,7 @@ async function main() {
   await encode('hero-1280.mp4', [
     '-i', SOURCE,
     '-an',
-    '-vf', 'scale=1280:-2',
+    '-vf', `scale=1280:-2,${COLOUR}`,
     '-c:v', 'libx264',
     '-profile:v', 'main',
     '-crf', '25',
@@ -52,7 +61,7 @@ async function main() {
   await encode('hero-720.mp4', [
     '-i', SOURCE,
     '-an',
-    '-vf', 'scale=720:-2',
+    '-vf', `scale=720:-2,${COLOUR}`,
     '-c:v', 'libx264',
     '-profile:v', 'main',
     '-crf', '28',
@@ -67,7 +76,7 @@ async function main() {
     '-ss', '2',
     '-i', SOURCE,
     '-frames:v', '1',
-    '-vf', 'scale=1280:-2',
+    '-vf', `scale=1280:-2,${COLOUR}`,
     path.join(OUT_DIR, 'hero-poster.png'),
   ]);
 

@@ -5,13 +5,27 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { operator } from '@/data/operator';
 
+interface HeroSource {
+  video: string;
+  poster: string;
+}
+
+const DESKTOP: HeroSource = { video: '/media/hero-1280.mp4', poster: '/media/hero-poster.webp' };
+// A dedicated portrait crop, not the desktop file cropped further by CSS — see
+// scripts/encode-hero.mjs for why: object-cover on a landscape source centred
+// on a narrow phone screen shows a thin sliver of hillside, not the bus.
+const PORTRAIT: HeroSource = {
+  video: '/media/hero-portrait.mp4',
+  poster: '/media/hero-poster-portrait.webp',
+};
+
 /**
- * Decides whether this visitor should get the video at all.
+ * Decides whether this visitor should get the video at all, and which crop.
  *
  * A 16 MB autoplaying background is the fastest way to ruin a phone's data
- * plan, so: reduced-motion and data-saver visitors keep the poster, phones get
- * the 720p cut, and everyone else gets 1280p — and only after the page has
- * settled, so the video never competes with the first paint.
+ * plan, so: reduced-motion and data-saver visitors keep the poster, and
+ * everyone else gets a video only after the page has settled, so it never
+ * competes with the first paint.
  */
 function useHeroVideo() {
   const reduced = useReducedMotion();
@@ -30,7 +44,7 @@ function useHeroVideo() {
     if (connection?.effectiveType && /^(slow-)?2g$|^3g$/.test(connection.effectiveType)) return;
 
     const choose = () =>
-      setSrc(window.innerWidth < 768 ? '/media/hero-720.mp4' : '/media/hero-1280.mp4');
+      setSrc(window.innerWidth < 768 ? PORTRAIT.video : DESKTOP.video);
 
     // Wait for idle so the video never delays the largest contentful paint.
     const idle = window.requestIdleCallback?.(choose, { timeout: 1800 }) ?? window.setTimeout(choose, 900);
@@ -54,13 +68,22 @@ export function Hero() {
   }, [src]);
 
   const words = operator.tagline.split(' ');
+  const posterForVideo = src === PORTRAIT.video ? PORTRAIT.poster : DESKTOP.poster;
 
   return (
     <section className="relative isolate flex min-h-[78dvh] flex-col justify-end overflow-hidden bg-black md:min-h-[86dvh]">
-      {/* Poster paints immediately; the video fades over it once it can play. */}
+      {/* Poster paints immediately, matched to viewport shape by CSS alone —
+          no JS round-trip before the first paint, and evergreen browsers
+          never fetch the non-matching image since it's display:none. */}
       <div
-        className="absolute inset-0 -z-20 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/media/hero-poster.webp)' }}
+        className="absolute inset-0 -z-20 block bg-cover bg-center md:hidden"
+        style={{ backgroundImage: `url(${PORTRAIT.poster})` }}
+        role="img"
+        aria-label="A Sapthagiri coach on a misty ghat road in the Western Ghats"
+      />
+      <div
+        className="absolute inset-0 -z-20 hidden bg-cover bg-center md:block"
+        style={{ backgroundImage: `url(${DESKTOP.poster})` }}
         role="img"
         aria-label="A Sapthagiri coach on a misty ghat road in the Western Ghats"
       />
@@ -71,7 +94,7 @@ export function Hero() {
           className={`absolute inset-0 -z-10 h-full w-full object-cover transition-opacity duration-1000 ${
             loaded ? 'opacity-100' : 'opacity-0'
           }`}
-          poster="/media/hero-poster.webp"
+          poster={posterForVideo}
           preload="none"
           autoPlay
           muted
@@ -93,17 +116,22 @@ export function Hero() {
       <div className="container-page relative pb-16 pt-28 md:pb-24 md:pt-40">
         <h1 className="max-w-3xl font-display text-[clamp(2.25rem,7vw,4.5rem)] font-semibold leading-[1.05] text-white">
           {words.map((word, i) => (
-                <motion.span
-                  key={`${word}-${i}`}
-                  className="inline-block"
-                  initial={{ opacity: 0, y: '0.4em' }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + i * 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {word}
-                  {i < words.length - 1 && ' '}
-                </motion.span>
-              ))}
+            <motion.span
+              key={`${word}-${i}`}
+              // A trailing space inside an inline-block gets trimmed as
+              // end-of-box whitespace and renders with zero width — collapsing
+              // "Seven " against "hills." with no gap between them.
+              // white-space:pre keeps that space's width intact; the browser
+              // still wraps normally between separate inline-block siblings.
+              className="inline-block whitespace-pre"
+              initial={{ opacity: 0, y: '0.4em' }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 + i * 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {word}
+              {i < words.length - 1 && ' '}
+            </motion.span>
+          ))}
         </h1>
 
         <motion.div
